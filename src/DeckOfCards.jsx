@@ -2,52 +2,58 @@ import React, { useState, useEffect } from "react";
 
 const BASE_URL = 'https://deckofcardsapi.com/api/deck/';
 const NEW_DECK = 'new/shuffle/?deck_count=1';
-// TODO: below variable needs to include deckId
-// https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1
-/*
-{   DECK EXAMPLE
-    "success": true,
-    "deck_id": "3p40paa87x90",
-    "shuffled": true,
-    "remaining": 52
-}
+
+/** App that gets deck of cards and displays
+ *
+ * Props: none
+ * State:
+ * - deck: {data, isLodaing}
+ * - card: {data}
+ *
+ * App -> DeckOfCards
+ *
 */
 
 function DeckOfCards() {
-    // need state for deck
     const [deck, setDeck] = useState({ data: null, isLoading: true });
-    const [card, setCard] = useState();
+    const [card, setCard] = useState(null);
 
-    // need to update deck on render with api call
+
+    /** Fetches a deck of cards on mount and updates deck state */
     useEffect(function fetchDeckOnMount() {
         async function fetchDeck() {
             const response = await fetch(`${BASE_URL}${NEW_DECK}`);
             const deckResult = await response.json();
-            setDeck(deckResult);
+            setDeck({data: deckResult, isLoading: false});
         }
         fetchDeck();
     }, []);
 
-    // function: make api call and update state
+    /** Fetches new card and updates state */
     async function fetchCard() {
-        const deckId = deck.data.deck_id;
-        const response = await fetch(`${BASE_URL}${deckId}/draw/?count=1`);
-        const cardResult = await response.json();
-        setCard(cardResult);
-        // image is cardResult.cards.image
-        // how many remaining in deck is remaining
+        if (card?.remaining || card === null) {
+            const deckId = deck.data.deck_id;
+            const response = await fetch(`${BASE_URL}${deckId}/draw/?count=1`);
+            const cardResult = await response.json();
+            setCard(cardResult);
+        }
     }
+
+    // Shows loading while deck is being fetched
+    if (deck.isLoading) return <i>Loading...</i>;
 
     return (
         <div>
             <button onClick={fetchCard}> Draw a Card </button>
+            {(!card?.remaining && card !== null) &&
+                <p>Error: no cards remaining</p>}
+            <br />
             {card
-                ? <img src={card.cards.image} alt="A card" />
+                ? <img src={card.cards[0].image} alt="A card" />
                 : null
             }
         </div>
     );
-    // return statement
 }
 
 export default DeckOfCards;
