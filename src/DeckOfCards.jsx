@@ -7,7 +7,7 @@ const NEW_DECK = 'new/shuffle/?deck_count=1';
  *
  * Props: none
  * State:
- * - deck: {data, isLodaing}
+ * - deck: {data, isLoading}
  * - card: {data}
  *
  * App -> DeckOfCards
@@ -17,7 +17,7 @@ const NEW_DECK = 'new/shuffle/?deck_count=1';
 function DeckOfCards() {
     const [deck, setDeck] = useState({ data: null, isLoading: true });
     const [card, setCard] = useState(null);
-
+    console.log("cards remaining:", card?.remaining);
 
     /** Fetches a deck of cards on mount and updates deck state */
     useEffect(function fetchDeckOnMount() {
